@@ -57,7 +57,7 @@ export default function Navbar() {
             </span>
           </Link>
           <Link
-            href="/my-plan"
+            href="/my-plan?tab=saved"
             className="flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold text-muted transition-colors hover:bg-surface sm:gap-2 sm:px-3 sm:py-1.5 sm:text-sm"
           >
             Saved
