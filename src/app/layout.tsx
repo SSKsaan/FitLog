@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Oswald } from "next/font/google";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { PlanProvider } from "@/lib/plan-context";
 import "./globals.css";
 
 const oswald = Oswald({
@@ -34,9 +35,11 @@ export default function RootLayout({
       className={`${oswald.variable} ${inter.variable} antialiased`}
     >
       <body className="flex min-h-svh flex-col">
-        <Navbar />
-        <main className="flex flex-1 flex-col">{children}</main>
-        <Footer />
+        <PlanProvider>
+          <Navbar />
+          <main className="flex flex-1 flex-col">{children}</main>
+          <Footer />
+        </PlanProvider>
       </body>
     </html>
   );

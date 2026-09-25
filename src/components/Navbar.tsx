@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { usePlan } from "@/lib/plan-context";
 
 const navLinks = [
   { label: "Workout", href: "/" },
@@ -11,6 +12,7 @@ const navLinks = [
 
 export default function Navbar() {
   const pathname = usePathname();
+  const { planCount, savedCount } = usePlan();
 
   return (
     <header className="sticky top-0 z-50 border-b border-line bg-background">
@@ -51,7 +53,7 @@ export default function Navbar() {
           >
             Plan
             <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-bold text-background sm:h-6 sm:min-w-6 sm:px-1.5 sm:text-xs">
-              0
+              {planCount}
             </span>
           </Link>
           <Link
@@ -60,7 +62,7 @@ export default function Navbar() {
           >
             Saved
             <span className="flex h-5 min-w-5 items-center justify-center rounded-full border border-foreground px-1 text-[10px] font-bold text-foreground sm:h-6 sm:min-w-6 sm:px-1.5 sm:text-xs">
-              0
+              {savedCount}
             </span>
           </Link>
         </div>

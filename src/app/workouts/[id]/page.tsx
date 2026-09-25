@@ -86,7 +86,7 @@ export default async function WorkoutPage({ params }: WorkoutPageProps) {
             ))}
           </ol>
 
-          <WorkoutActions />
+          <WorkoutActions workoutId={workout.id} />
         </div>
       </section>
     </div>
