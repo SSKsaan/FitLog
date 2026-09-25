@@ -15,3 +15,12 @@ export async function getWorkouts(): Promise<Workout[]> {
     throw new Error("Failed to load workouts. Please try again later.");
   }
 }
+
+export async function getWorkoutById(id: number): Promise<Workout | undefined> {
+  try {
+    const workouts = await getWorkouts();
+    return workouts.find((workout) => workout.id === id);
+  } catch {
+    throw new Error("Failed to load workout. Please try again later.");
+  }
+}
