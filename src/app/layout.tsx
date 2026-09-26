@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Oswald } from "next/font/google";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import Toaster from "@/components/Toaster";
 import { PlanProvider } from "@/lib/plan-context";
 import "./globals.css";
 
@@ -39,6 +40,7 @@ export default function RootLayout({
           <Navbar />
           <main className="flex flex-1 flex-col">{children}</main>
           <Footer />
+          <Toaster />
         </PlanProvider>
       </body>
     </html>

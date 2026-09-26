@@ -6,6 +6,7 @@ import { Fragment, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Check, Clock, Flame, Star, X } from "lucide-react";
 import SortDropdown, { type SortOption } from "@/components/SortDropdown";
+import { showToast } from "@/lib/toast";
 import { usePlan } from "@/lib/plan-context";
 import type { Workout } from "@/types/workout";
 
@@ -59,6 +60,15 @@ export default function MyPlan({ workouts }: MyPlanProps) {
 
   function switchTab(tab: Tab) {
     router.push(tab === "plan" ? "/my-plan" : "/my-plan?tab=saved");
+  }
+
+  function removeWorkoutWithToast(workout: Workout) {
+    removeWorkout(workout.id);
+    showToast(
+      activeTab === "plan"
+        ? "Removed from today's plan."
+        : "Removed from saved."
+    );
   }
 
   return (
@@ -182,7 +192,10 @@ export default function MyPlan({ workouts }: MyPlanProps) {
                   {activeTab === "plan" && (
                     <button
                       type="button"
-                      onClick={() => removeFromPlan(workout.id)}
+                      onClick={() => {
+                        removeFromPlan(workout.id);
+                        showToast("Workout Logged - Nice Work");
+                      }}
                       className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-full bg-accent px-4 pt-2.5 pb-3 text-[13px] font-bold leading-none text-background transition-colors hover:bg-accent/90 sm:flex-none"
                     >
                       <Check size={16} />
@@ -191,7 +204,7 @@ export default function MyPlan({ workouts }: MyPlanProps) {
                   )}
                   <button
                     type="button"
-                    onClick={() => removeWorkout(workout.id)}
+                    onClick={() => removeWorkoutWithToast(workout)}
                     aria-label={`Remove ${workout.name} from ${
                       activeTab === "plan" ? "today's plan" : "saved"
                     }`}
