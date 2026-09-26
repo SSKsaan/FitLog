@@ -127,6 +127,7 @@ export default function MyPlan({ workouts }: MyPlanProps) {
               key={tab.id}
               type="button"
               onClick={() => switchTab(tab.id)}
+              aria-pressed={activeTab === tab.id}
               className={
                 activeTab === tab.id
                   ? "rounded-lg bg-background px-3 py-1.5 text-sm font-bold text-accent transition-colors"

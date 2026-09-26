@@ -8,11 +8,13 @@ import {
   type ReactNode,
 } from "react";
 
+type Ids = { plan: number[]; saved: number[] };
+
+type LoadedIds = Ids & { hydrated: boolean };
+
 type PlanContextValue = {
   planIds: number[];
   savedIds: number[];
-  planCount: number;
-  savedCount: number;
   hydrated: boolean;
   addToPlan: (workoutId: number) => void;
   saveForLater: (workoutId: number) => void;
@@ -22,23 +24,22 @@ type PlanContextValue = {
 
 const STORAGE_KEY = "fitlog-plan";
 
-type LoadedIds = { plan: number[]; saved: number[]; hydrated: boolean };
+const EMPTY_IDS: Ids = { plan: [], saved: [] };
+const SERVER_IDS: LoadedIds = { ...EMPTY_IDS, hydrated: false };
 
-const EMPTY_IDS: LoadedIds = { plan: [], saved: [], hydrated: false };
-
-let ids: LoadedIds = EMPTY_IDS;
+let ids: LoadedIds = SERVER_IDS;
 const listeners = new Set<() => void>();
 
-function parse(raw: string | null): Omit<LoadedIds, "hydrated"> {
+function parse(raw: string | null): Ids {
   try {
     const parsed = raw ? JSON.parse(raw) : {};
-    const list = (key: "plan" | "saved") =>
+    const list = (key: keyof Ids) =>
       Array.isArray(parsed[key])
         ? parsed[key].filter((id: unknown) => typeof id === "number")
         : [];
     return { plan: list("plan"), saved: list("saved") };
   } catch {
-    return { plan: [], saved: [] };
+    return EMPTY_IDS;
   }
 }
 
@@ -54,7 +55,7 @@ function getSnapshot(): LoadedIds {
 }
 
 function getServerSnapshot(): LoadedIds {
-  return EMPTY_IDS;
+  return SERVER_IDS;
 }
 
 function notify() {
@@ -65,18 +66,16 @@ function load() {
   try {
     ids = { ...parse(window.localStorage.getItem(STORAGE_KEY)), hydrated: true };
   } catch {
-    ids = { plan: [], saved: [], hydrated: true };
+    ids = { ...EMPTY_IDS, hydrated: true };
   }
   notify();
 }
 
-function update(mutate: (current: LoadedIds) => Omit<LoadedIds, "hydrated">) {
-  ids = { ...mutate(ids), hydrated: ids.hydrated };
+function update(mutate: (current: LoadedIds) => Ids) {
+  const next = mutate(ids);
+  ids = { ...next, hydrated: ids.hydrated };
   try {
-    window.localStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify({ plan: ids.plan, saved: ids.saved })
-    );
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
   } catch {
     // storage unavailable; keep using in-memory state
   }
@@ -95,8 +94,6 @@ export function PlanProvider({ children }: { children: ReactNode }) {
   const value: PlanContextValue = {
     planIds: ids.plan,
     savedIds: ids.saved,
-    planCount: ids.plan.length,
-    savedCount: ids.saved.length,
     hydrated: ids.hydrated,
     addToPlan: (workoutId) =>
       update(({ plan, saved }) => ({

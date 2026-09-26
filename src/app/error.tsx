@@ -1,6 +1,7 @@
 "use client";
 
-export default function ErrorPage({ reset }: { reset: () => void }) {  return (
+export default function ErrorPage({ reset }: { reset: () => void }) {
+  return (
     <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6 py-20 text-center">
       <h1 className="font-heading text-2xl font-bold uppercase text-foreground">
         Something went wrong

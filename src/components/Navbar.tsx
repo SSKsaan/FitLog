@@ -42,7 +42,7 @@ function BadgeLink({ href, label, count, accent }: BadgeLinkProps) {
 
 export default function Navbar() {
   const pathname = usePathname();
-  const { planCount, savedCount } = usePlan();
+  const { planIds, savedIds } = usePlan();
   const [menuOpen, setMenuOpen] = useState(false);
   const [lastPath, setLastPath] = useState(pathname);
 
@@ -81,11 +81,11 @@ export default function Navbar() {
         </nav>
 
         <div className="hidden items-center gap-3 sm:flex">
-          <BadgeLink href="/my-plan" label="Plan" count={planCount} accent />
+          <BadgeLink href="/my-plan" label="Plan" count={planIds.length} accent />
           <BadgeLink
             href="/my-plan?tab=saved"
             label="Saved"
-            count={savedCount}
+            count={savedIds.length}
             accent={false}
           />
         </div>
@@ -134,11 +134,11 @@ export default function Navbar() {
                 >
                   My Plan
                 </Link>
-                <BadgeLink href="/my-plan" label="Plan" count={planCount} accent />
+                <BadgeLink href="/my-plan" label="Plan" count={planIds.length} accent />
                 <BadgeLink
                   href="/my-plan?tab=saved"
                   label="Saved"
-                  count={savedCount}
+                  count={savedIds.length}
                   accent={false}
                 />
               </div>

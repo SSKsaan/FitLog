@@ -26,7 +26,7 @@ export default function SortDropdown({ value, onChange }: SortDropdownProps) {
       return;
     }
 
-    function handlePointerDown(event: MouseEvent) {
+    function handleMouseDown(event: MouseEvent) {
       if (!containerRef.current?.contains(event.target as Node)) {
         setOpen(false);
       }
@@ -38,11 +38,11 @@ export default function SortDropdown({ value, onChange }: SortDropdownProps) {
       }
     }
 
-    document.addEventListener("mousedown", handlePointerDown);
+    document.addEventListener("mousedown", handleMouseDown);
     document.addEventListener("keydown", handleKeyDown);
 
     return () => {
-      document.removeEventListener("mousedown", handlePointerDown);
+      document.removeEventListener("mousedown", handleMouseDown);
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, [open]);
@@ -57,7 +57,6 @@ export default function SortDropdown({ value, onChange }: SortDropdownProps) {
         <button
           type="button"
           onClick={() => setOpen((prev) => !prev)}
-          aria-haspopup="true"
           aria-expanded={open}
           className="flex w-28 items-center justify-between gap-2 rounded-lg border border-line bg-surface py-2 pl-4 pr-3 text-sm text-foreground transition-colors outline-none hover:bg-card focus:border-accent"
         >
@@ -71,16 +70,12 @@ export default function SortDropdown({ value, onChange }: SortDropdownProps) {
           />
         </button>
         {open && (
-          <ul
-            role="menu"
-            className="absolute right-0 z-50 mt-2 min-w-44 overflow-hidden rounded-xl border border-line bg-card p-1.5 shadow-2xl"
-          >
+          <ul className="absolute right-0 z-50 mt-2 min-w-44 overflow-hidden rounded-xl border border-line bg-card p-1.5 shadow-2xl">
             {options.map((option) => (
               <li key={option.value}>
                 <button
                   type="button"
-                  role="menuitemradio"
-                  aria-checked={option.value === value}
+                  aria-pressed={option.value === value}
                   onClick={() => {
                     onChange(option.value);
                     setOpen(false);

@@ -3,9 +3,7 @@
 import { useSyncExternalStore } from "react";
 import Spinner from "@/components/Spinner";
 
-function subscribe() {
-  return () => {};
-}
+const subscribe = () => () => {};
 
 export default function AppLoading() {
   const hydrated = useSyncExternalStore(
