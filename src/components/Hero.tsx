@@ -25,10 +25,11 @@ export default function Hero() {
           <HeroCta />
         </div>
         <Image
-          src="/hero.png"
+          src="/hero.webp"
           alt="FitLog hero artwork"
-          width={334}
-          height={334}
+          width={576}
+          height={576}
+          sizes="(max-width: 640px) calc(100vw - 96px), (max-width: 1024px) 512px, 576px"
           priority
           className="w-full max-w-md sm:max-w-lg lg:-mr-20 lg:max-w-xl"
         />
