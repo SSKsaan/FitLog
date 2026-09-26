@@ -18,7 +18,7 @@ type SortDropdownProps = {
 export default function SortDropdown({ value, onChange }: SortDropdownProps) {
   return (
     <div className="flex items-center gap-2">
-      <span className="text-sm text-muted">Sort By</span>
+      <span className="hidden text-sm text-muted sm:inline">Sort By</span>
       <div className="relative">
         <select
           value={value}

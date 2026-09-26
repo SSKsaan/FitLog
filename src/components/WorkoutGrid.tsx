@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { getWorkouts } from "@/lib/api";
+import { matchesQuery } from "@/lib/search";
 import type { Workout } from "@/types/workout";
 import WorkoutCard from "@/components/WorkoutCard";
+import SearchInput from "@/components/SearchInput";
 import SortDropdown, { type SortOption } from "@/components/SortDropdown";
 import Spinner from "@/components/Spinner";
 
@@ -16,6 +18,7 @@ export default function WorkoutGrid() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [sortBy, setSortBy] = useState<SortOption>("duration");
+  const [query, setQuery] = useState("");
 
   useEffect(() => {
     let cancelled = false;
@@ -44,6 +47,10 @@ export default function WorkoutGrid() {
     };
   }, []);
 
+  const visibleWorkouts = sortedWorkouts(workouts, sortBy).filter(
+    (workout) => matchesQuery(workout, query)
+  );
+
   return (
     <section
       id="library"
@@ -58,7 +65,12 @@ export default function WorkoutGrid() {
             Twelve lifts covering every major muscle group.
           </p>
         </div>
-        {!isLoading && <SortDropdown value={sortBy} onChange={setSortBy} />}
+        {!isLoading && (
+          <div className="flex w-full items-center justify-between gap-3 sm:w-auto sm:justify-end">
+            <SearchInput value={query} onChange={setQuery} />
+            <SortDropdown value={sortBy} onChange={setSortBy} />
+          </div>
+        )}
       </div>
 
       {isLoading ? (
@@ -67,12 +79,16 @@ export default function WorkoutGrid() {
         </div>
       ) : error ? (
         <p className="py-10 text-center text-muted">{error}</p>
-      ) : (
+      ) : visibleWorkouts.length > 0 ? (
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {sortedWorkouts(workouts, sortBy).map((workout) => (
+          {visibleWorkouts.map((workout) => (
             <WorkoutCard key={workout.id} workout={workout} />
           ))}
         </div>
+      ) : (
+        <p className="py-10 break-words text-center text-muted">
+          No workouts match &quot;{query}&quot;.
+        </p>
       )}
     </section>
   );

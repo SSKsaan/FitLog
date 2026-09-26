@@ -6,7 +6,9 @@ import { Fragment, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Check, Clock, Flame, Star, X } from "lucide-react";
 import SortDropdown, { type SortOption } from "@/components/SortDropdown";
+import SearchInput from "@/components/SearchInput";
 import PlanLoading from "@/components/PlanLoading";
+import { matchesQuery } from "@/lib/search";
 import { showToast } from "@/lib/toast";
 import { usePlan } from "@/lib/plan-context";
 import type { Workout } from "@/types/workout";
@@ -28,6 +30,7 @@ export default function MyPlan({ workouts }: MyPlanProps) {
   const { planIds, savedIds, removeFromPlan, removeFromSaved, hydrated } =
     usePlan();
   const [sortBy, setSortBy] = useState<SortOption>("duration");
+  const [query, setQuery] = useState("");
 
   if (!hydrated) {
     return <PlanLoading />;
@@ -38,6 +41,9 @@ export default function MyPlan({ workouts }: MyPlanProps) {
   const activeWorkouts = workouts
     .filter((workout) => activeIds.includes(workout.id))
     .sort((a, b) => b[sortBy] - a[sortBy]);
+  const visibleWorkouts = activeWorkouts.filter((workout) =>
+    matchesQuery(workout, query)
+  );
   const removeWorkout = activeTab === "plan" ? removeFromPlan : removeFromSaved;
 
   const metrics = [
@@ -65,6 +71,7 @@ export default function MyPlan({ workouts }: MyPlanProps) {
   ];
 
   function switchTab(tab: Tab) {
+    setQuery("");
     router.push(tab === "plan" ? "/my-plan" : "/my-plan?tab=saved");
   }
 
@@ -131,7 +138,10 @@ export default function MyPlan({ workouts }: MyPlanProps) {
             </button>
           ))}
         </div>
-        <SortDropdown value={sortBy} onChange={setSortBy} />
+        <div className="flex w-full items-center justify-between gap-3 sm:w-auto sm:justify-end">
+          <SearchInput value={query} onChange={setQuery} />
+          <SortDropdown value={sortBy} onChange={setSortBy} />
+        </div>
       </div>
 
       {activeWorkouts.length === 0 ? (
@@ -149,9 +159,18 @@ export default function MyPlan({ workouts }: MyPlanProps) {
             Go to workouts
           </Link>
         </div>
+      ) : visibleWorkouts.length === 0 ? (
+        <div className="mt-6 flex flex-col items-center gap-2 rounded-3xl border-2 border-dotted border-line bg-card px-6 py-12 text-center">
+          <h2 className="font-heading text-xl font-bold uppercase text-foreground">
+            No matches
+          </h2>
+          <p className="max-w-sm break-words text-sm text-muted">
+            Nothing matches &quot;{query}&quot;. Try another name or tag.
+          </p>
+        </div>
       ) : (
         <ul className="mt-6 space-y-3">
-          {activeWorkouts.map((workout) => (
+          {visibleWorkouts.map((workout) => (
             <li
               key={workout.id}
               className="rounded-2xl border border-line bg-card p-3 sm:p-4"
