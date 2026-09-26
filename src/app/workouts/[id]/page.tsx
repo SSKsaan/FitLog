@@ -76,14 +76,10 @@ export default async function WorkoutPage({ params }: WorkoutPageProps) {
           </div>
 
           <div className="mt-5 overflow-hidden rounded-2xl border border-line bg-card">
-            {stats.map((stat, index) => (
+            {stats.map((stat) => (
               <div
                 key={stat.label}
-                className={
-                  index === stats.length - 1
-                    ? "flex items-center justify-between px-5 py-3"
-                    : "flex items-center justify-between border-b border-line px-5 py-3"
-                }
+                className="flex items-center justify-between border-b border-line px-5 py-3 last:border-b-0"
               >
                 <span className="text-xs font-bold uppercase tracking-wide text-muted">
                   {stat.label}

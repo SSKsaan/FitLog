@@ -39,11 +39,11 @@ export default function WorkoutCard({ workout }: WorkoutCardProps) {
         <p className="text-sm text-muted">{workout.equipment}</p>
         <div className="mt-auto flex flex-wrap items-center gap-4 border-t border-line pt-3 text-sm text-muted">
           <span className="flex items-center gap-1.5">
-            <Clock size={14} />
+            <Clock size={14} className="text-accent" />
             {workout.duration} min
           </span>
           <span className="flex items-center gap-1.5">
-            <Flame size={14} />
+            <Flame size={14} className="text-accent" />
             {workout.caloriesBurned} kcal
           </span>
           <span className="flex items-center gap-1.5">

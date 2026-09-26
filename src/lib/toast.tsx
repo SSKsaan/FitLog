@@ -44,6 +44,7 @@ const toastStyle = {
   whiteSpace: "nowrap",
   width: "max-content",
   maxWidth: "min(340px, calc(100vw - 32px))",
+  marginBottom: 0,
 };
 
 export function showToast(message: string, icon: ToastIcon = SuccessIcon) {

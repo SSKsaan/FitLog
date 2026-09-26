@@ -51,13 +51,13 @@ export default function MyPlan({ workouts }: MyPlanProps) {
       label: "Exercises",
       value: activeWorkouts.length,
       accent: true,
-      align: "left",
+      className: "",
     },
     {
       label: "Minutes",
       value: activeWorkouts.reduce((sum, workout) => sum + workout.duration, 0),
       accent: false,
-      align: "center",
+      className: "sm:text-center",
     },
     {
       label: "Calories",
@@ -66,11 +66,14 @@ export default function MyPlan({ workouts }: MyPlanProps) {
         0
       ),
       accent: false,
-      align: "right",
+      className: "sm:text-right",
     },
   ];
 
   function switchTab(tab: Tab) {
+    if (tab === activeTab) {
+      return;
+    }
     setQuery("");
     router.push(tab === "plan" ? "/my-plan" : "/my-plan?tab=saved");
   }
@@ -99,13 +102,9 @@ export default function MyPlan({ workouts }: MyPlanProps) {
             {index > 0 && (
               <span className="mx-4 h-px bg-line sm:mx-0 sm:h-10 sm:w-px sm:self-center" />
             )}
-            <div className={`flex-1 px-4 py-6 sm:px-6 sm:py-7 ${
-              metric.align === "center"
-                ? "text-left sm:text-center"
-                : metric.align === "right"
-                ? "text-left sm:text-right"
-                : "text-left"
-            }`}>
+            <div
+              className={`flex-1 px-4 py-6 text-left sm:px-6 sm:py-7 ${metric.className}`}
+            >
               <p className="text-sm font-semibold tracking-wide text-muted sm:text-xs">
                 {metric.label}
               </p>
@@ -207,10 +206,10 @@ export default function MyPlan({ workouts }: MyPlanProps) {
                     </span>
                   </div>
                 </div>
-                <div className="flex w-full items-center gap-2 sm:ml-auto sm:w-auto">
+                <div className="flex w-full items-center gap-1 sm:ml-auto sm:w-auto sm:flex-nowrap sm:gap-2">
                   <Link
                     href={`/workouts/${workout.id}`}
-                    className="flex-1 justify-center rounded-full border border-muted px-4 pt-2.5 pb-3 text-center text-[13px] font-bold leading-none text-muted transition-colors hover:bg-surface hover:text-foreground sm:flex-none"
+                    className="flex-1 justify-center whitespace-nowrap rounded-full border border-muted px-2 pt-2.5 pb-3 text-center text-[12px] font-bold leading-none text-muted transition-colors hover:bg-surface hover:text-foreground sm:flex-none sm:px-4 sm:text-[13px]"
                   >
                     View Details
                   </Link>
@@ -221,9 +220,9 @@ export default function MyPlan({ workouts }: MyPlanProps) {
                         removeFromPlan(workout.id);
                         showToast("Workout Logged - Nice Work");
                       }}
-                      className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-full bg-accent px-4 pt-2.5 pb-3 text-[13px] font-bold leading-none text-background transition-colors hover:bg-accent/90 sm:flex-none"
+                      className="inline-flex flex-1 items-center justify-center gap-1 whitespace-nowrap rounded-full bg-accent px-2 pt-2.5 pb-3 text-[12px] font-bold leading-none text-background transition-colors hover:bg-accent/90 sm:flex-none sm:gap-1.5 sm:px-4 sm:text-[13px]"
                     >
-                      <Check size={16} />
+                      <Check size={16} strokeWidth={3} className="shrink-0" />
                       Mark as Done
                     </button>
                   )}
@@ -233,9 +232,9 @@ export default function MyPlan({ workouts }: MyPlanProps) {
                     aria-label={`Remove ${workout.name} from ${
                       activeTab === "plan" ? "today's plan" : "saved"
                     }`}
-                    className="p-1 text-muted transition-colors hover:text-foreground"
+                    className="ml-auto shrink-0 p-0.5 text-muted transition-colors hover:text-foreground sm:p-1"
                   >
-                    <X size={22} />
+                    <X className="size-5 sm:size-[22px]" />
                   </button>
                 </div>
               </div>

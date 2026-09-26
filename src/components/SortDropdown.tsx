@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { ChevronDown } from "lucide-react";
 
 export type SortOption = "duration" | "caloriesBurned" | "rating";
@@ -16,25 +17,86 @@ type SortDropdownProps = {
 };
 
 export default function SortDropdown({ value, onChange }: SortDropdownProps) {
+  const [open, setOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const selected = options.find((option) => option.value === value) ?? options[0];
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    function handlePointerDown(event: MouseEvent) {
+      if (!containerRef.current?.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("mousedown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [open]);
+
   return (
-    <div className="flex items-center gap-2">
-      <span className="hidden text-sm text-muted sm:inline">Sort By</span>
+    <div ref={containerRef} className="flex items-center gap-2">
+      <span className="text-sm text-muted">
+        <span className="sm:hidden">Sort</span>
+        <span className="hidden sm:inline">Sort By</span>
+      </span>
       <div className="relative">
-        <select
-          value={value}
-          onChange={(e) => onChange(e.target.value as SortOption)}
-          className="appearance-none rounded-lg border border-line bg-surface py-2 pl-4 pr-10 text-sm text-foreground outline-none transition-colors hover:bg-card focus:border-accent"
+        <button
+          type="button"
+          onClick={() => setOpen((prev) => !prev)}
+          aria-haspopup="true"
+          aria-expanded={open}
+          className="flex w-28 items-center justify-between gap-2 rounded-lg border border-line bg-surface py-2 pl-4 pr-3 text-sm text-foreground transition-colors outline-none hover:bg-card focus:border-accent"
         >
-          {options.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
-        <ChevronDown
-          size={16}
-          className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-muted"
-        />
+          {selected.label}
+          <ChevronDown
+            size={18}
+            strokeWidth={2.5}
+            className={`text-muted transition-transform duration-200 ${
+              open ? "rotate-180" : ""
+            }`}
+          />
+        </button>
+        {open && (
+          <ul
+            role="menu"
+            className="absolute right-0 z-50 mt-2 min-w-44 overflow-hidden rounded-xl border border-line bg-card p-1.5 shadow-2xl"
+          >
+            {options.map((option) => (
+              <li key={option.value}>
+                <button
+                  type="button"
+                  role="menuitemradio"
+                  aria-checked={option.value === value}
+                  onClick={() => {
+                    onChange(option.value);
+                    setOpen(false);
+                  }}
+                  className={`block w-full rounded-lg px-3.5 py-2.5 text-left text-sm transition-colors ${
+                    option.value === value
+                      ? "bg-accent/10 text-accent"
+                      : "text-foreground hover:bg-surface"
+                  }`}
+                >
+                  {option.label}
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </div>
   );

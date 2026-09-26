@@ -1,18 +1,26 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Search, X } from "lucide-react";
 
 type SearchInputProps = {
   value: string;
   onChange: (value: string) => void;
-  placeholder?: string;
 };
 
-export default function SearchInput({
-  value,
-  onChange,
-  placeholder = "Search name or tag",
-}: SearchInputProps) {
+export default function SearchInput({ value, onChange }: SearchInputProps) {
+  const [isNarrow, setIsNarrow] = useState(false);
+
+  useEffect(() => {
+    const narrow = window.matchMedia("(max-width: 639px)");
+    const sync = () => setIsNarrow(narrow.matches);
+    sync();
+    narrow.addEventListener("change", sync);
+    return () => narrow.removeEventListener("change", sync);
+  }, []);
+
+  const placeholder = isNarrow ? "Search" : "Search name or tag";
+
   return (
     <div className="relative min-w-0 flex-1 sm:w-48 sm:flex-none">
       <Search

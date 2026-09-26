@@ -52,11 +52,11 @@ export default function WorkoutGrid() {
   );
 
   return (
-    <section
-      id="library"
-      className="mx-auto w-full max-w-7xl px-6 py-10 sm:px-8 lg:px-12 lg:py-16"
-    >
-      <div className="mb-8 flex flex-wrap items-end justify-between gap-x-4 gap-y-4">
+    <section className="mx-auto w-full max-w-7xl px-6 py-10 sm:px-8 lg:px-12 lg:py-16">
+      <div
+        id="library"
+        className="mb-8 flex scroll-mt-24 flex-wrap items-end justify-between gap-x-4 gap-y-4"
+      >
         <div>
           <h2 className="font-heading text-3xl font-bold uppercase tracking-wide sm:text-4xl">
             The Library

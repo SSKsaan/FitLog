@@ -3,13 +3,14 @@ import { Inter, Oswald } from "next/font/google";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Toaster from "@/components/Toaster";
+import AppLoading from "@/components/AppLoading";
 import { PlanProvider } from "@/lib/plan-context";
 import "./globals.css";
 
 const oswald = Oswald({
   variable: "--font-oswald",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["600", "700"],
   display: "optional",
 });
 
@@ -37,6 +38,7 @@ export default function RootLayout({
     >
       <body className="flex min-h-svh flex-col">
         <PlanProvider>
+          <AppLoading />
           <Navbar />
           <main className="flex flex-1 flex-col">{children}</main>
           <Footer />

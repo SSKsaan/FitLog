@@ -15,6 +15,9 @@ export default function WorkoutActions({ workoutId }: WorkoutActionsProps) {
   const atCap = planIds.length >= 5;
   const addDisabled = !planned && atCap;
 
+  const base =
+    "inline-flex w-full items-center justify-center gap-2 rounded-xl px-5 pt-2.5 pb-3 text-[13px] font-bold leading-none transition-colors sm:w-auto";
+
   function handleAdd() {
     if (planned) {
       showToast("Already in your plan list.", FailedIcon);
@@ -38,19 +41,19 @@ export default function WorkoutActions({ workoutId }: WorkoutActionsProps) {
   }
 
   return (
-    <div className="mt-8 flex flex-wrap gap-3">
+    <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
       <button
         type="button"
         onClick={handleAdd}
         aria-disabled={addDisabled}
         aria-label={atCap ? "Add to Today's Plan (full)" : "Add to Today's Plan"}
-        className={
+        className={`${base} ${
           planned
-            ? "inline-flex items-center justify-center gap-2 rounded-xl bg-accent/10 px-5 pt-2.5 pb-3 text-[13px] font-bold leading-none text-accent transition-colors"
+            ? "bg-accent/10 text-accent"
             : addDisabled
-              ? "inline-flex cursor-not-allowed items-center justify-center gap-2 rounded-xl border border-muted/40 px-5 pt-2.5 pb-3 text-[13px] font-bold leading-none text-muted/60"
-              : "inline-flex items-center justify-center gap-2 rounded-xl bg-accent px-5 pt-2.5 pb-3 text-[13px] font-bold leading-none text-background transition-colors hover:bg-accent/90"
-        }
+              ? "cursor-not-allowed border border-muted/40 text-muted/60"
+              : "bg-accent text-background hover:bg-accent/90"
+        }`}
       >
         <CalendarPlus size={16} className="shrink-0" />
         {planned ? "Added to Today's Plan" : "Add to Today's Plan"}
@@ -58,11 +61,9 @@ export default function WorkoutActions({ workoutId }: WorkoutActionsProps) {
       <button
         type="button"
         onClick={handleSave}
-        className={
-          saved
-            ? "inline-flex items-center justify-center gap-2 rounded-xl border border-muted px-5 pt-2.5 pb-3 text-[13px] font-bold leading-none text-muted transition-colors"
-            : "inline-flex items-center justify-center gap-2 rounded-xl border border-muted px-5 pt-2.5 pb-3 text-[13px] font-bold leading-none text-foreground transition-colors hover:bg-surface"
-        }
+        className={`${base} border border-muted ${
+          saved ? "text-muted" : "text-foreground hover:bg-surface"
+        }`}
       >
         <Bookmark size={16} className="shrink-0" />
         {saved ? "Saved for Later" : "Save for Later"}

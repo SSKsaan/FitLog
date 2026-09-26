@@ -29,20 +29,16 @@ const EMPTY_IDS: LoadedIds = { plan: [], saved: [], hydrated: false };
 let ids: LoadedIds = EMPTY_IDS;
 const listeners = new Set<() => void>();
 
-function parse(raw: string | null): LoadedIds {
+function parse(raw: string | null): Omit<LoadedIds, "hydrated"> {
   try {
     const parsed = raw ? JSON.parse(raw) : {};
-    return {
-      plan: Array.isArray(parsed.plan)
-        ? parsed.plan.filter((id: unknown) => typeof id === "number")
-        : [],
-      saved: Array.isArray(parsed.saved)
-        ? parsed.saved.filter((id: unknown) => typeof id === "number")
-        : [],
-      hydrated: true,
-    };
+    const list = (key: "plan" | "saved") =>
+      Array.isArray(parsed[key])
+        ? parsed[key].filter((id: unknown) => typeof id === "number")
+        : [];
+    return { plan: list("plan"), saved: list("saved") };
   } catch {
-    return { ...EMPTY_IDS, hydrated: true };
+    return { plan: [], saved: [] };
   }
 }
 
@@ -61,23 +57,30 @@ function getServerSnapshot(): LoadedIds {
   return EMPTY_IDS;
 }
 
+function notify() {
+  listeners.forEach((listener) => listener());
+}
+
 function load() {
   try {
-    ids = parse(window.localStorage.getItem(STORAGE_KEY));
+    ids = { ...parse(window.localStorage.getItem(STORAGE_KEY)), hydrated: true };
   } catch {
-    ids = { ...EMPTY_IDS, hydrated: true };
+    ids = { plan: [], saved: [], hydrated: true };
   }
-  listeners.forEach((listener) => listener());
+  notify();
 }
 
 function update(mutate: (current: LoadedIds) => Omit<LoadedIds, "hydrated">) {
   ids = { ...mutate(ids), hydrated: ids.hydrated };
   try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(ids));
+    window.localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({ plan: ids.plan, saved: ids.saved })
+    );
   } catch {
     // storage unavailable; keep using in-memory state
   }
-  listeners.forEach((listener) => listener());
+  notify();
 }
 
 const PlanContext = createContext<PlanContextValue | null>(null);

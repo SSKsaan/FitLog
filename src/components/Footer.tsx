@@ -11,7 +11,7 @@ export default function Footer() {
             FitLog
           </span>
         </Link>
-        <p className="text-center">
+        <p className="text-center text-[10px] min-[360px]:text-[11px] sm:text-sm">
           © 2026 FitLog — Workout Library. Train hard, log honest.
         </p>
       </div>

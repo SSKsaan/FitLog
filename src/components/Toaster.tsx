@@ -7,6 +7,7 @@ export default function Toaster() {
   return (
     <ToastContainer
       position="top-right"
+      style={{ top: "var(--toast-top)" }}
       autoClose={2200}
       newestOnTop
       limit={4}
