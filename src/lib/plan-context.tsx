@@ -13,6 +13,7 @@ type PlanContextValue = {
   savedIds: number[];
   planCount: number;
   savedCount: number;
+  hydrated: boolean;
   addToPlan: (workoutId: number) => void;
   saveForLater: (workoutId: number) => void;
   removeFromPlan: (workoutId: number) => void;
@@ -21,9 +22,9 @@ type PlanContextValue = {
 
 const STORAGE_KEY = "fitlog-plan";
 
-type LoadedIds = { plan: number[]; saved: number[] };
+type LoadedIds = { plan: number[]; saved: number[]; hydrated: boolean };
 
-const EMPTY_IDS: LoadedIds = { plan: [], saved: [] };
+const EMPTY_IDS: LoadedIds = { plan: [], saved: [], hydrated: false };
 
 let ids: LoadedIds = EMPTY_IDS;
 const listeners = new Set<() => void>();
@@ -38,9 +39,10 @@ function parse(raw: string | null): LoadedIds {
       saved: Array.isArray(parsed.saved)
         ? parsed.saved.filter((id: unknown) => typeof id === "number")
         : [],
+      hydrated: true,
     };
   } catch {
-    return EMPTY_IDS;
+    return { ...EMPTY_IDS, hydrated: true };
   }
 }
 
@@ -63,13 +65,13 @@ function load() {
   try {
     ids = parse(window.localStorage.getItem(STORAGE_KEY));
   } catch {
-    ids = EMPTY_IDS;
+    ids = { ...EMPTY_IDS, hydrated: true };
   }
   listeners.forEach((listener) => listener());
 }
 
-function update(mutate: (current: LoadedIds) => LoadedIds) {
-  ids = mutate(ids);
+function update(mutate: (current: LoadedIds) => Omit<LoadedIds, "hydrated">) {
+  ids = { ...mutate(ids), hydrated: ids.hydrated };
   try {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(ids));
   } catch {
@@ -92,6 +94,7 @@ export function PlanProvider({ children }: { children: ReactNode }) {
     savedIds: ids.saved,
     planCount: ids.plan.length,
     savedCount: ids.saved.length,
+    hydrated: ids.hydrated,
     addToPlan: (workoutId) =>
       update(({ plan, saved }) => ({
         saved,

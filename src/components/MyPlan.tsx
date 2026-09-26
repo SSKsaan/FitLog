@@ -6,6 +6,7 @@ import { Fragment, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Check, Clock, Flame, Star, X } from "lucide-react";
 import SortDropdown, { type SortOption } from "@/components/SortDropdown";
+import PlanLoading from "@/components/PlanLoading";
 import { showToast } from "@/lib/toast";
 import { usePlan } from "@/lib/plan-context";
 import type { Workout } from "@/types/workout";
@@ -24,8 +25,13 @@ type MyPlanProps = {
 export default function MyPlan({ workouts }: MyPlanProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { planIds, savedIds, removeFromPlan, removeFromSaved } = usePlan();
+  const { planIds, savedIds, removeFromPlan, removeFromSaved, hydrated } =
+    usePlan();
   const [sortBy, setSortBy] = useState<SortOption>("duration");
+
+  if (!hydrated) {
+    return <PlanLoading />;
+  }
 
   const activeTab: Tab = searchParams.get("tab") === "saved" ? "saved" : "plan";
   const activeIds = activeTab === "plan" ? planIds : savedIds;

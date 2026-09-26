@@ -12,10 +12,16 @@ export default function WorkoutActions({ workoutId }: WorkoutActionsProps) {
   const { addToPlan, saveForLater, planIds, savedIds } = usePlan();
   const planned = planIds.includes(workoutId);
   const saved = savedIds.includes(workoutId);
+  const atCap = planIds.length >= 5;
+  const addDisabled = !planned && atCap;
 
   function handleAdd() {
     if (planned) {
       showToast("Already in your plan list.", FailedIcon);
+      return;
+    }
+    if (atCap) {
+      showToast("Today's plan is full - finish them first!", FailedIcon);
       return;
     }
     addToPlan(workoutId);
@@ -36,10 +42,14 @@ export default function WorkoutActions({ workoutId }: WorkoutActionsProps) {
       <button
         type="button"
         onClick={handleAdd}
+        aria-disabled={addDisabled}
+        aria-label={atCap ? "Add to Today's Plan (full)" : "Add to Today's Plan"}
         className={
           planned
             ? "inline-flex items-center justify-center gap-2 rounded-xl bg-accent/10 px-5 pt-2.5 pb-3 text-[13px] font-bold leading-none text-accent transition-colors"
-            : "inline-flex items-center justify-center gap-2 rounded-xl bg-accent px-5 pt-2.5 pb-3 text-[13px] font-bold leading-none text-background transition-colors hover:bg-accent/90"
+            : addDisabled
+              ? "inline-flex cursor-not-allowed items-center justify-center gap-2 rounded-xl border border-muted/40 px-5 pt-2.5 pb-3 text-[13px] font-bold leading-none text-muted/60"
+              : "inline-flex items-center justify-center gap-2 rounded-xl bg-accent px-5 pt-2.5 pb-3 text-[13px] font-bold leading-none text-background transition-colors hover:bg-accent/90"
         }
       >
         <CalendarPlus size={16} className="shrink-0" />
