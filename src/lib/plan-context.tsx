@@ -3,7 +3,8 @@
 import {
   createContext,
   useContext,
-  useState,
+  useEffect,
+  useSyncExternalStore,
   type ReactNode,
 } from "react";
 
@@ -18,29 +19,99 @@ type PlanContextValue = {
   removeFromSaved: (workoutId: number) => void;
 };
 
+const STORAGE_KEY = "fitlog-plan";
+
+type LoadedIds = { plan: number[]; saved: number[] };
+
+const EMPTY_IDS: LoadedIds = { plan: [], saved: [] };
+
+let ids: LoadedIds = EMPTY_IDS;
+const listeners = new Set<() => void>();
+
+function parse(raw: string | null): LoadedIds {
+  try {
+    const parsed = raw ? JSON.parse(raw) : {};
+    return {
+      plan: Array.isArray(parsed.plan)
+        ? parsed.plan.filter((id: unknown) => typeof id === "number")
+        : [],
+      saved: Array.isArray(parsed.saved)
+        ? parsed.saved.filter((id: unknown) => typeof id === "number")
+        : [],
+    };
+  } catch {
+    return EMPTY_IDS;
+  }
+}
+
+function subscribe(callback: () => void): () => void {
+  listeners.add(callback);
+  return () => {
+    listeners.delete(callback);
+  };
+}
+
+function getSnapshot(): LoadedIds {
+  return ids;
+}
+
+function getServerSnapshot(): LoadedIds {
+  return EMPTY_IDS;
+}
+
+function load() {
+  try {
+    ids = parse(window.localStorage.getItem(STORAGE_KEY));
+  } catch {
+    ids = EMPTY_IDS;
+  }
+  listeners.forEach((listener) => listener());
+}
+
+function update(mutate: (current: LoadedIds) => LoadedIds) {
+  ids = mutate(ids);
+  try {
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(ids));
+  } catch {
+    // storage unavailable; keep using in-memory state
+  }
+  listeners.forEach((listener) => listener());
+}
+
 const PlanContext = createContext<PlanContextValue | null>(null);
 
 export function PlanProvider({ children }: { children: ReactNode }) {
-  const [planIds, setPlanIds] = useState<number[]>([]);
-  const [savedIds, setSavedIds] = useState<number[]>([]);
+  useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
-  const value = {
-    planIds,
-    savedIds,
-    planCount: planIds.length,
-    savedCount: savedIds.length,
-    addToPlan: (workoutId: number) =>
-      setPlanIds((ids) =>
-        ids.includes(workoutId) ? ids : [...ids, workoutId]
-      ),
-    saveForLater: (workoutId: number) =>
-      setSavedIds((ids) =>
-        ids.includes(workoutId) ? ids : [...ids, workoutId]
-      ),
-    removeFromPlan: (workoutId: number) =>
-      setPlanIds((ids) => ids.filter((id) => id !== workoutId)),
-    removeFromSaved: (workoutId: number) =>
-      setSavedIds((ids) => ids.filter((id) => id !== workoutId)),
+  useEffect(() => {
+    load();
+  }, []);
+
+  const value: PlanContextValue = {
+    planIds: ids.plan,
+    savedIds: ids.saved,
+    planCount: ids.plan.length,
+    savedCount: ids.saved.length,
+    addToPlan: (workoutId) =>
+      update(({ plan, saved }) => ({
+        saved,
+        plan: plan.includes(workoutId) ? plan : [...plan, workoutId],
+      })),
+    saveForLater: (workoutId) =>
+      update(({ plan, saved }) => ({
+        plan,
+        saved: saved.includes(workoutId) ? saved : [...saved, workoutId],
+      })),
+    removeFromPlan: (workoutId) =>
+      update(({ plan, saved }) => ({
+        saved,
+        plan: plan.filter((id) => id !== workoutId),
+      })),
+    removeFromSaved: (workoutId) =>
+      update(({ plan, saved }) => ({
+        plan,
+        saved: saved.filter((id) => id !== workoutId),
+      })),
   };
 
   return (
