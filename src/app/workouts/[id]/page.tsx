@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getWorkoutById } from "@/lib/api";
@@ -6,6 +7,22 @@ import WorkoutActions from "@/components/WorkoutActions";
 type WorkoutPageProps = {
   params: Promise<{ id: string }>;
 };
+
+export async function generateMetadata({
+  params,
+}: WorkoutPageProps): Promise<Metadata> {
+  const { id } = await params;
+  const workout = await getWorkoutById(Number(id));
+
+  if (!workout) {
+    return { title: "Not Found | FitLog" };
+  }
+
+  return {
+    title: `${workout.name} | FitLog`,
+    description: workout.description,
+  };
+}
 
 export default async function WorkoutPage({ params }: WorkoutPageProps) {
   const { id } = await params;
